@@ -117,6 +117,7 @@ mat[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>,
 ## 0610007P14Rik     1     3     2
 ## 0610009B22Rik     0     3     0</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># In order to decrease run time, we randomly select 5000 genes and 300 cells</span>
+<span class="kw">set.seed</span>(<span class="dv">1</span>)
 sub.mat=mat[<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(mat), <span class="dt">size =</span> <span class="dv">5000</span>),<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">ncol</span>(mat), <span class="dt">size =</span> <span class="dv">300</span>)]
 <span class="kw">nrow</span>(sub.mat)</code></pre></div>
 <pre><code>## [1] 5000</code></pre>
@@ -134,13 +135,13 @@ sub.mat=mat[<span class="kw">sample</span>(<span class="dv">1</span><span class=
 <p>After this step, which will return a list with each element containing one candidate geneset.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(spike_candidate)</code></pre></div>
 <pre><code>## List of 7
-##  $ : chr [1:11] &quot;Rpl27a&quot; &quot;Uba52&quot; &quot;Rpl26&quot; &quot;Rplp2-ps1&quot; ...
-##  $ : chr [1:19] &quot;Rpl27a&quot; &quot;Uba52&quot; &quot;Rpl17&quot; &quot;Rpl26&quot; ...
-##  $ : chr [1:25] &quot;Rpl27a&quot; &quot;Uba52&quot; &quot;Rpl17&quot; &quot;Rpl26&quot; ...
-##  $ : chr [1:31] &quot;Rpl27a&quot; &quot;Uba52&quot; &quot;Rpl17&quot; &quot;Rpl22&quot; ...
-##  $ : chr [1:37] &quot;Rpl27a&quot; &quot;Uba52&quot; &quot;Pou5f1&quot; &quot;Rpl17&quot; ...
-##  $ : chr [1:44] &quot;Rpl27a&quot; &quot;Uba52&quot; &quot;Pou5f1&quot; &quot;Rpl17&quot; ...
-##  $ : chr [1:49] &quot;Rpl27a&quot; &quot;Atp5a1&quot; &quot;Uba52&quot; &quot;Pou5f1&quot; ...</code></pre>
+##  $ : chr [1:13] &quot;Eef1a1&quot; &quot;Rpl9&quot; &quot;Rps18&quot; &quot;Rpl36&quot; ...
+##  $ : chr [1:17] &quot;Eef1a1&quot; &quot;Gm13826&quot; &quot;Rpl9&quot; &quot;Ppia&quot; ...
+##  $ : chr [1:20] &quot;Eef1a1&quot; &quot;Gm13826&quot; &quot;Rpl9&quot; &quot;Ppia&quot; ...
+##  $ : chr [1:25] &quot;Eef1a1&quot; &quot;Gm6654&quot; &quot;Gm13826&quot; &quot;Rpl9&quot; ...
+##  $ : chr [1:31] &quot;Eef1a1&quot; &quot;Gm6654&quot; &quot;Gm13826&quot; &quot;Rpl9&quot; ...
+##  $ : chr [1:35] &quot;Eef1a1&quot; &quot;Gm6654&quot; &quot;Hnrnpf&quot; &quot;Gm13826&quot; ...
+##  $ : chr [1:46] &quot;Eef1a1&quot; &quot;Gm6654&quot; &quot;Hnrnpf&quot; &quot;Gm13826&quot; ...</code></pre>
 </div>
 <div id="normalize-matrix" class="section level2">
 <h2>Normalize matrix</h2>
@@ -150,23 +151,23 @@ sub.mat=mat[<span class="kw">sample</span>(<span class="dv">1</span><span class=
 <pre><code>## [1] &quot;sf&quot;    &quot;inst&quot;  &quot;ngene&quot; &quot;ref&quot;   &quot;spike&quot;</code></pre>
 <p><code>candidate_res$sf</code> is a numeric matrix containing the size factors, with rows representing cells and columns representing size factors estimated by each candidate set.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">candidate_res<span class="op">$</span>sf[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>]</code></pre></div>
-<pre><code>##             [,1]     [,2]     [,3]
-## cell332 1.500259 1.436301 1.497987
-## cell766 1.255976 1.194002 1.255724
-## cell154 1.307825 1.250639 1.253789</code></pre>
+<pre><code>##              [,1]      [,2]      [,3]
+## cell248 1.0361437 1.0455692 1.0520635
+## cell347 0.8900558 0.8503075 0.7934766
+## cell534 1.6170666 1.5613605 1.5449976</code></pre>
 <p><code>candidate_res$inst</code> is a numeric matrix containing the instability scores, with each row representing one cell and each column representing instability scores estimated by one candidate set.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">candidate_res<span class="op">$</span>inst[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>]</code></pre></div>
-<pre><code>##              [,1]       [,2]      [,3]
-## cell332 0.1161452 0.10866759 0.1182829
-## cell766 0.1230973 0.10860754 0.1159024
-## cell154 0.0690235 0.07884292 0.1259320</code></pre>
+<pre><code>##               [,1]       [,2]       [,3]
+## cell248 0.09946956 0.11323383 0.10845678
+## cell347 0.07488380 0.07313330 0.08438882
+## cell534 0.09269553 0.08528726 0.08261505</code></pre>
 <p>you can draw a boxplot to see the instability score of cells for each candidate set to measure the reliability of each candidate set and manually choose best IS geneset (see our article for more details).</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># plot every candidate geneset instability score</span>
 candidate_res<span class="op">$</span>inst[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>]</code></pre></div>
-<pre><code>##              [,1]       [,2]      [,3]
-## cell332 0.1161452 0.10866759 0.1182829
-## cell766 0.1230973 0.10860754 0.1159024
-## cell154 0.0690235 0.07884292 0.1259320</code></pre>
+<pre><code>##               [,1]       [,2]       [,3]
+## cell248 0.09946956 0.11323383 0.10845678
+## cell347 0.07488380 0.07313330 0.08438882
+## cell534 0.09269553 0.08528726 0.08261505</code></pre>
 </div>
 <div id="choose-the-best-is-geneset" class="section level2">
 <h2>Choose the best IS geneset</h2>

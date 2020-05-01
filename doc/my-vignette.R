@@ -11,6 +11,7 @@ library(dbscan)
 # check raw counts matrix
 mat[1:3,1:3]
 # In order to decrease run time, we randomly select 5000 genes and 300 cells
+set.seed(1)
 sub.mat=mat[sample(1:nrow(mat), size = 5000),sample(1:ncol(mat), size = 300)]
 nrow(sub.mat)
 
