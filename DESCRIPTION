@@ -13,7 +13,7 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: TRUE
 RoxygenNote: 7.0.2
-Suggests:
+Suggests: 
  knitr,
  rmarkdown,
 VignetteBuilder: knitr
