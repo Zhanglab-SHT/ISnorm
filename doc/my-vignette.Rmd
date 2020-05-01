@@ -1,0 +1,114 @@
+---
+title: "ISnorm Package"
+author: "Li Lin"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{ISnorm Package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}{inputenc}
+---
+
+```{r,echo=F,knitr-options,message=FALSE, warning=FALSE}
+library(knitr)
+opts_chunk$set(fig.align = 'center', fig.width = 6, fig.height = 5, dev = 'png')
+options(warn=-1)
+```
+
+# Introduction
+
+ISnorm is a method implemented in R for normalizing single-cell RNA sequencing (scRNA-seq) data by a set of constantly expressed genes across all cells (internal spike-in genes, IS genes). We will demonstrate how to normalize scRNA-seq data using ISnorm in this tutorial.
+
+# Quick Start
+
+## ISnorm input
+
+In this tutorial, we use UMI matrix data from [Klein et al](https://linkinghub.elsevier.com/retrieve/pii/S0092867415005000), which is available at GEO database under accession number **GSE65525** (GSM1599494_ES_d0_main.csv). But generally the inputs can be in many forms, including un-normalized matrix such as reads count and transcripts count, or normalized matrix such as rpm , tpm and fpkm (see our article for more details). The rows in **mat** object correspond to genes and columns correspond to cells.
+
+```{r}
+library(ISnorm)
+library(dbscan)
+```
+
+```{r}
+# check raw counts matrix
+mat[1:3,1:3]
+# In order to decrease run time, we randomly select 5000 genes and 300 cells
+sub.mat=mat[sample(1:nrow(mat), size = 5000),sample(1:ncol(mat), size = 300)]
+nrow(sub.mat)
+```
+
+## Calculate distance between genes
+
+This step is the most time-consuming and running time mainly depends on the number of genes retained after filtering. You can try higher detection ratio `detection_rate=0.95` to filter more genes or use multiple cores `ncore=5` to reduce the running time.
+
+```{r}
+gene_dis<-calculate.dis(sub.mat,detection_rate=0.90)
+```
+
+`detection_rate=0.9` means genes without at least 90% cells having nonzero expression will not be included in further analyis.
+
+## Use DBscan algorithm to predict IS genes
+
+Next we use DBscan algorithm to predict IS genes. `ngene` specifies a series of expected number of IS genes.
+
+```{r}
+spike_candidate<-dbscan.pick(dis=gene_dis,ngene=(1:floor(nrow(gene_dis)/25))*5)
+```
+
+After this step, which will return a list with each element containing one candidate geneset.
+
+```{r}
+str(spike_candidate)
+```
+
+## Normalize matrix
+
+In this step, We use each candidate set to normalize raw counts matrix. This function returns a list containing the normalization results for each candidate set.
+
+```{r}
+candidate_res<-candidate.norm(mat=sub.mat,spike_candidate=spike_candidate)
+```
+
+```{r}
+names(candidate_res)
+```
+
+`candidate_res$sf` is a numeric matrix containing the size factors, with rows representing cells and columns representing size factors estimated by each candidate set. 
+
+```{r}
+candidate_res$sf[1:3,1:3]
+```
+
+`candidate_res$inst` is a numeric matrix containing the instability scores, with each row representing one cell and each column representing instability scores estimated by one candidate set.
+
+```{r}
+candidate_res$inst[1:3,1:3]
+```
+
+you can draw a boxplot to see the instability score of cells for each candidate set to measure the reliability of each candidate set and manually choose best IS geneset (see our article for more details).
+
+```{r}
+# plot every candidate geneset instability score
+candidate_res$inst[1:3,1:3]
+```
+
+## Choose the best IS geneset
+
+You can manually choose best IS geneset based on the results from `candidate_res`. To be convenient, we have developed a method to automatically choose the best IS geneset based on *F-test*.
+
+```{r}
+ISnorm_res<-opt.candidate(mat=mat,candidate_res=candidate_res)
+```
+
+```{r}
+names(ISnorm_res)
+```
+
+`ISnorm_res$normalized` contains the normalized matrix.
+`ISnorm_res$size_factor` contains the size factor for each cell. 
+`ISnorm_res$ISgenes` contains the name of IS genes used for normalization. 
+`ISnorm_res$inst_cell` contains the instability score for each cell. 
+`ISnorm_res$picked` contains the index of the optimized candidate geneset.
+
+Lastly, you can use `ISnorm_res$normalized` and `ISnorm_res$size_factor` result to do downstream analysis for your single cell data.
