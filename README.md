@@ -1,4 +1,4 @@
-# ISNorm2
+# ISnorm
 
 **Q:** What is **ISnorm** ?  
 **A:** **ISnorm** is a package for sc-RNA seq data normalization.
