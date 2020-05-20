@@ -1,5 +1,7 @@
 # ISnorm
 
+**Author: Li Lin & Minfang Song**
+
 **Q:** What is **ISnorm** ?  
 **A:** **ISnorm** is a package for sc-RNA seq data normalization.
 
